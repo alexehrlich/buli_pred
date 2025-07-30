@@ -1,0 +1,42 @@
+MATCH DECAY!!!
+
+
+| `Elo_Difference`     | `Elo_Home - Elo_Away`                                                   |
+| `Avg_pt_last_5_Home` | Average points (max 3) of home team in last 5 matches                   |
+| `Avg_pt_last_5_Away` | Same for away team                                                      |
+| `Form_Difference`    | Difference of form: `Avg_pt_last_5_Home - Avg_pt_last_5_Away`           |
+| `Win_Streak_Home`    | Number of consecutive wins before match (home team)                     |
+| `Win_Streak_Away`    | Same for away team                                                      |
+
+| `Home_Elo_Trend`     | Change in Elo for home team over last X matches                         |
+| `Away_Elo_Trend`     | Same for away team                                                      |
+| `Form_vs_Elo_Home`   | Difference between Elo and Form: `Elo_Home * 0.01 - Avg_pt_last_5_Home` |
+| `Form_vs_Elo_Away`   | Same for away team                                                      |
+| Feature Name          | Description                                               |
+| --------------------- | --------------------------------------------------------- |
+| `H2H_Points_Home`     | Avg points from last N direct matches vs. opponent (home) |
+| `H2H_Points_Away`     | Same for away                                             |
+| `H2H_Win_Streak_Home` | Consecutive wins of home team vs. this opponent           |
+| `H2H_Total_Games`     | Total number of direct matches before this one            |
+| Feature Name    | Description                             |
+| --------------- | --------------------------------------- |
+| `Home_WinRate`  | Home team’s win rate in past home games |
+| `Away_WinRate`  | Away team’s win rate in past away games |
+| `Home_Goal_Avg` | Avg goals scored at home (past N games) |
+| `Away_Goal_Avg` | Avg goals scored away                   |
+| Feature Name              | Description                        |
+| ------------------------- | ---------------------------------- |
+
+| Feature Name             | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| `Is_Derby`               | True if local rivalry (manual list or logic) |
+| `Is_BigTeam_Home`        | True if home team is top-tier (e.g., Bayern) |
+| `Is_BigTeam_Away`        | Same for away team                           |
+| `Is_Newly_Promoted_Home` | True if team was promoted this season        |
+| `Is_Newly_Promoted_Away` | Same for away team                           |
+
+
+last_goal_ratio: Bool (encaptures win and how they won)
+rolling features: elo, xg, poss, sot, goal_ratio
+elo_differnece: difference of the avg_elos 
+Momentum: Change in elo over last N days (home + away)
