@@ -85,12 +85,12 @@ def merge_match_rows(df) -> pd.DataFrame:
 
 def add_elos_to_df(df) -> pd.DataFrame:
 
-    with open('../../data/raw/elo_api_name_to_team_map.json') as f:
+    with open('./data/raw/elo_api_name_to_team_map.json') as f:
         elo_api_team_mapping = json.load(f)
         elos = {}
         for team in list(elo_api_team_mapping.keys()):
             mapped_name = elo_api_team_mapping[team]
-            elos[mapped_name] = pd.read_csv(f"../../data/raw/team_elos/{team}.csv")[['Elo', 'From', 'To']]
+            elos[mapped_name] = pd.read_csv(f"./data/raw/team_elos/{team}.csv")[['Elo', 'From', 'To']]
             elos[mapped_name]['From'] = pd.to_datetime(elos[mapped_name]['From'], format='%Y-%m-%d')
             elos[mapped_name]['To'] = pd.to_datetime(elos[mapped_name]['To'], format='%Y-%m-%d')
             date_cutoff = datetime.strptime("01/01/2019", "%d/%m/%Y")
@@ -104,20 +104,27 @@ def add_elos_to_df(df) -> pd.DataFrame:
             return filtered_df.iloc[-1]['Elo']
 
         def fill_elo_row(row):
-            if row['comp'] != 'Bundesliga':
-                return pd.Series({'elo_home': float('nan'), 'elo_away': float('nan')})
             date = row['date']
             away_team = row['team_away']
             home_team = row['team_home']
-            elo_home = get_elo(date, elos[home_team])
-            elo_away = get_elo(date, elos[away_team])
+            if home_team in list(elos.keys()):
+                elo_home = get_elo(date, elos[home_team])
+            else:
+                elo_home = float('nan')
+            if away_team in list(elos.keys()):
+                elo_away = get_elo(date, elos[away_team])
+            else:
+                elo_away = float('nan')
             return pd.Series({'elo_home': elo_home, 'elo_away': elo_away})
 
         df[['elo_home', 'elo_away']] = df.apply(fill_elo_row, axis=1)
         return df.drop(columns='match_id').sort_values('date').reset_index(drop=True)
 
 def main():
-    df = pd.read_csv("../../data/raw/matches.csv")
+    df = pd.read_csv("./data/raw/matches.csv")
+
+    df['gf'] = df['gf'].astype(str).apply(lambda x: float(x.split(' ')[0]))
+    df['ga'] = df['ga'].astype(str).apply(lambda x: float(x.split(' ')[0]))
 
     df = create_missing_match_pairs(df)
 
@@ -125,7 +132,8 @@ def main():
 
     df = add_elos_to_df(df)
 
-    df.to_csv('../../data/interim/matches_combined.csv')
+    df.to_csv('./data/interim/matches_combined.csv', float_format="%.7f")
+
 
 if __name__ == '__main__':
     main()
