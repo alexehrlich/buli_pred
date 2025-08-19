@@ -1,0 +1,15 @@
+[
+    "xg_home_rolling_3",
+    "xg_away_rolling_3",
+    "elo_home_rolling_3",
+    "elo_away_rolling_3",
+    "elo_rolling_diff",           
+    "xg_rolling_diff",            
+    "goal_ratio_diff",            
+    "ga_per_xga_diff",            
+    "gf_per_xg_diff",             
+    "elo_diff_x_xg_diff",         
+    "elo_diff_sq",
+    "goal_ratio_home_rolling_1",
+    "goal_ratio_away_rolling_1"
+]
