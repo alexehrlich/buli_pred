@@ -1,6 +1,9 @@
 import pandas as pd
 import pickle
 import json
+import matplotlib.pyplot as plt
+from plot_elos import plot_elo
+
 
 def main():
     df = pd.read_csv('./data/processed/buli_matches_rolling.csv')
@@ -25,10 +28,13 @@ def main():
         X_simple = match[features_simple].to_numpy().reshape(1, -1)
         X_complex = match[features_complex].to_numpy().reshape(1, -1)
         result_simple = simple_model.predict_proba(X_simple)
-        resukt_complex = complex_model.predict_proba(X_complex)
-        print(f"{match['team_home']} wins: {result_simple[0][1] * 100:.2f}%")
-        print(f"{match['team_home']} looses OR draw: {result_simple[0][0] * 100:.2f}%")
+        result_complex = complex_model.predict_proba(X_complex)
+        print(f"Simple model prediction:\t{match['team_home']} wins: {result_simple[0][1] * 100:.2f}% | {match['team_home']} looses OR draw: {result_simple[0][0] * 100:.2f}%")
+        print(f"Complex model prediction:\t{match['team_home']} wins: {result_complex[0][0] * 100:.2f}% | Draw: {result_complex[0][1] * 100:.2f}% | {match['team_away']} wins: {result_complex[0][2] * 100:.2f}%")
         print("\n")
+
+        plot_elo([match['team_home'], match['team_away']])
+        
 
 if __name__ == '__main__':
     main()

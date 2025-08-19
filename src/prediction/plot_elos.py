@@ -9,7 +9,7 @@ def plot_elo(teams, start=1990, end=2025):
     date_list = [d.strftime(format='%Y-%m') for d in dates]
     fig, ax = plt.subplots(figsize=(15,6))
 
-    with open('../data/raw/elo_api_name_to_team_map.json') as f:
+    with open('./data/raw/elo_api_name_to_team_map.json') as f:
         elo_team_mapping = json.load(f)
         team_elo_mapping = {value: key for key, value in elo_team_mapping.items()}
     
@@ -17,7 +17,7 @@ def plot_elo(teams, start=1990, end=2025):
         if not team in team_elo_mapping.keys():
             print(f"Team {team} not found.")
             continue
-        elo_df = pd.read_csv(f"../data/raw/team_elos/{team_elo_mapping[team]}.csv")
+        elo_df = pd.read_csv(f"./data/raw/team_elos/{team_elo_mapping[team]}.csv")
         elo_df['From'] = pd.to_datetime(elo_df['From'])
         elos_mean = elo_df.groupby(elo_df['From'].dt.to_period('M'))[['Elo']].mean()
         elo_dates = [str(p) for p in elos_mean.index]
