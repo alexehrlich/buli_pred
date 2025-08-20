@@ -2,7 +2,7 @@ import pandas as pd
 import pickle
 import json
 import matplotlib.pyplot as plt
-#from .plot_elos import plot_elo
+from .plot_elos import get_elos
 
 
 def make_prediction():
@@ -34,6 +34,8 @@ def make_prediction():
         print(f"Complex model prediction:\t{match['team_home']} wins: {result_complex[0][0] * 100:.2f}% | Draw: {result_complex[0][1] * 100:.2f}% | {match['team_away']} wins: {result_complex[0][2] * 100:.2f}%")
         print("\n")
 
+        team_elo = get_elos([match['team_home'], match['team_away']])
+
         matches[idx] = {
             "team_home": match['team_home'],
             "team_away": match['team_away'],
@@ -46,10 +48,14 @@ def make_prediction():
                 "home_team_win": str(result_complex[0][0] * 100),
                 "draw": str(result_complex[0][1] * 100),
                 "away_team_win": str(result_complex[0][2] * 100)
+            },
+            "elos": {
+                "start_date": 1990,
+                "end_date": 2025,
+                "team_home": [float(x) for x in team_elo[match['team_home']]],
+                "team_away": [float(x) for x in team_elo[match['team_away']]]
             }
         }
-
-        #plot_elo([match['team_home'], match['team_away']])
     return matches
 
 def main():
