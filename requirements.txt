@@ -1,6 +1,9 @@
 pandas
 numpy
-sklearn
+scikit-learn
 requests
-selenium
+matplotlib
 bs4
+xgboost
+fastapi[standard]
+selenium

@@ -30,6 +30,7 @@ class Scraper:
                 else:
                     print(f"could not find {team}")
 
+
     def scrape_match_data(self, years, from_date=None, to_date=pd.to_datetime('today').normalize(), save_to_filepath=None):   
         options = Options()
         options.add_argument("--headless=new")
