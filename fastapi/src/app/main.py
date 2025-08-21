@@ -1,18 +1,13 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from prediction.predict import make_prediction
-from data.Scraper import Scraper
-import pandas as pd
+from data.scraping import fetch_newest
+from data.combine_data import combine_matches
+from data.feature_eng import engineer_features
+from fastapi import BackgroundTasks
+import asyncio
 
 app = FastAPI(title='Test')
 
-# Allow your HTML page to fetch
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # or ["http://127.0.0.1:5500"] if using a local server
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 @app.get("/")
 async def root():
@@ -20,15 +15,21 @@ async def root():
 
 @app.get("/predict")
 async def predict():
-
-    #sc = Scraper()
-    # path = '../../data/raw/matches.csv'
-    # current_df = pd.read_csv(path).sort_values('date')
-    # current_df = current_df[current_df['result'].notna()]
-    # current_df.to_csv(path, index=False)
-    # last_date = pd.to_datetime(current_df.iloc[-1]['date'])
-    # print(f"Found last date: {last_date}")
-    # print(sc.scrape_match_data(years=[2026], from_date=last_date, to_date=pd.to_datetime('2025-08-24'), save_to_filepath=path).head())
-
     results = make_prediction()
     return results
+
+# Wrapper to run sync functions in a separate thread
+async def run_in_thread(func, *args, **kwargs):
+    await asyncio.to_thread(func, *args, **kwargs)
+
+def run_all_in_order():
+    fetch_newest()
+    combine_matches()
+    engineer_features()
+    
+@app.get("/update")
+async def load_new_data(background_tasks: BackgroundTasks):
+    # Schedule the tasks in background, safely
+    background_tasks.add_task(run_all_in_order)
+    
+    return {"message": "Fetching new matches - this can take up to 10 minutes..."}

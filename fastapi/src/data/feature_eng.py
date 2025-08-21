@@ -82,8 +82,8 @@ def calculate_date_details(df) -> pd.DataFrame:
     df['week'] = df.apply(lambda x: x['round'].split(' ')[-1], axis=1)
     return df
 
-def main():
-    df = pd.read_csv('./data/interim/matches_combined.csv', index_col=0)
+def engineer_features():
+    df = pd.read_csv('../../data/interim/matches_combined.csv', index_col=0)
     
     df = calculate_date_details(df)
 
@@ -123,7 +123,50 @@ def main():
 
     df['home_won'] = df.apply(lambda row: 1 if row['result_home'] == 'W' else 0, axis=1)
 
-    df.reset_index(drop=True).to_csv('./data/processed/buli_matches_rolling.csv', float_format="%.7f")
+    df.reset_index(drop=True).to_csv('../../data/processed/buli_matches_rolling.csv', float_format="%.7f")
+
+def main():
+    df = pd.read_csv('../../data/interim/matches_combined.csv', index_col=0)
+    
+    df = calculate_date_details(df)
+
+    df = calculate_rest_days(df)
+
+    df = df[df['comp'] == 'Bundesliga']
+
+    df['goal_ratio_home'] = (df['goals_home'] + 1) / (df['goals_away'] + 1)
+    df['goal_ratio_away'] = (df['goals_away'] + 1) / (df['goals_home'] + 1)
+
+    df['ga_per_xga_home'] = df.apply(
+        lambda row: float(row['goals_away']) / float(row['xg_away']) if row['xg_away'] != 0.0 else 1.0,
+        axis=1)
+    df['ga_per_xga_away'] = df.apply(
+        lambda row: float(row['goals_home']) / float(row['xg_home']) if row['xg_home'] != 0.0 else 1.0,
+        axis=1)
+    df['gf_per_xg_home'] = df.apply(
+        lambda row: float(row['goals_home']) / float(row['xg_home']) if row['xg_home'] != 0.0 else 1.0,
+        axis=1)
+    df['gf_per_xg_away'] = df.apply(
+        lambda row: float(row['goals_away']) / float(row['xg_away']) if row['xg_away'] != 0.0 else 1.0,
+        axis=1)
+
+
+    df = rolling_stats(df, ['xg', 'sh', 'sot', 'poss', 'goal_ratio', 'elo', 'ga_per_xga', 'gf_per_xg'], 3)
+    df = rolling_stats(df, ['goal_ratio'], 1)
+
+
+    df['elo_rolling_diff'] = df['elo_home_rolling_3'] - df['elo_away_rolling_3']
+    df['xg_rolling_diff'] = df['xg_home_rolling_3'] - df['xg_away_rolling_3']
+    df['goal_ratio_diff'] = df['goal_ratio_home_rolling_3'] - df['goal_ratio_away_rolling_3']
+    df['ga_per_xga_diff'] = df['ga_per_xga_home_rolling_3'] - df['ga_per_xga_away_rolling_3']
+    df['gf_per_xg_diff'] = df['gf_per_xg_home_rolling_3'] - df['gf_per_xg_away_rolling_3']
+
+    df['elo_diff_x_xg_diff'] = df['elo_rolling_diff'] * df['xg_rolling_diff']
+    df['elo_diff_sq'] = df['elo_rolling_diff'] * df['elo_rolling_diff']
+
+    df['home_won'] = df.apply(lambda row: 1 if row['result_home'] == 'W' else 0, axis=1)
+
+    df.reset_index(drop=True).to_csv('../../data/processed/buli_matches_rolling.csv', float_format="%.7f")
 
 if __name__ == '__main__':
     main()

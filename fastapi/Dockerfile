@@ -11,6 +11,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --upgrade pip
 RUN pip install -r /app/requirements.txt
 
+RUN playwright install
+
 
 WORKDIR /app/src/app
 

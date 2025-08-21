@@ -13,18 +13,18 @@ class Scraper:
         pass
 
     def download_team_elos(self):
-        with open('./data/raw/elo_api_name_to_team_map.json', 'r') as f:
+        with open('../../data/raw/elo_api_name_to_team_map.json', 'r') as f:
             elo_teamname_mapping = json.load(f)
 
-            if not os.path.exists('./data/raw/team_elos/'):
-                print(f"create folder ./data/raw/team_elos/")
-                os.makedirs('./data/raw/team_elos/')
+            if not os.path.exists('../../data/raw/team_elos/'):
+                print(f"create folder ../../data/raw/team_elos/")
+                os.makedirs('../../data/raw/team_elos/')
 
             for team in list(elo_teamname_mapping.keys()):
                 print(f"Downloading elo for team {team}")
                 r = requests.get(f"http://api.clubelo.com/{team}")
                 if r.status_code == 200:
-                    f = open(f"./data/raw/team_elos/{team}.csv", 'w')
+                    f = open(f"../../data/raw/team_elos/{team}.csv", 'w')
                     f.write(r.text)
                     f.close()
                 else:
@@ -107,7 +107,7 @@ class Scraper:
             browser.close()
 
         if save_to_filepath:
-            with open('./data/raw/fbref_api_name_to_team_map.json') as f:
+            with open('../../data/raw/fbref_api_name_to_team_map.json') as f:
                 match_df = pd.concat(all_matches)
                 fbref_team_name_mapping = json.load(f)
                 match_df.columns = [c.lower() for c in match_df.columns]

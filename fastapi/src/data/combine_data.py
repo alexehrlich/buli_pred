@@ -85,12 +85,12 @@ def merge_match_rows(df) -> pd.DataFrame:
 
 def add_elos_to_df(df) -> pd.DataFrame:
 
-    with open('./data/raw/elo_api_name_to_team_map.json') as f:
+    with open('../../data/raw/elo_api_name_to_team_map.json') as f:
         elo_api_team_mapping = json.load(f)
         elos = {}
         for team in list(elo_api_team_mapping.keys()):
             mapped_name = elo_api_team_mapping[team]
-            elos[mapped_name] = pd.read_csv(f"./data/raw/team_elos/{team}.csv")[['Elo', 'From', 'To']]
+            elos[mapped_name] = pd.read_csv(f"../../data/raw/team_elos/{team}.csv")[['Elo', 'From', 'To']]
             elos[mapped_name]['From'] = pd.to_datetime(elos[mapped_name]['From'], format='%Y-%m-%d')
             elos[mapped_name]['To'] = pd.to_datetime(elos[mapped_name]['To'], format='%Y-%m-%d')
             date_cutoff = datetime.strptime("01/01/2019", "%d/%m/%Y")
@@ -120,8 +120,8 @@ def add_elos_to_df(df) -> pd.DataFrame:
         df[['elo_home', 'elo_away']] = df.apply(fill_elo_row, axis=1)
         return df.drop(columns='match_id').sort_values('date').reset_index(drop=True)
 
-def main():
-    df = pd.read_csv("./data/raw/matches.csv")
+def combine_matches():
+    df = pd.read_csv("../../data/raw/matches.csv")
 
     df['gf'] = df['gf'].astype(str).apply(lambda x: float(x.split(' ')[0]))
     df['ga'] = df['ga'].astype(str).apply(lambda x: float(x.split(' ')[0]))
@@ -132,7 +132,10 @@ def main():
 
     df = add_elos_to_df(df)
 
-    df.to_csv('./data/interim/matches_combined.csv', float_format="%.7f")
+    df.to_csv('../../data/interim/matches_combined.csv', float_format="%.7f")
+
+def main():
+    combine_matches()
 
 
 if __name__ == '__main__':
