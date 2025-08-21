@@ -3,6 +3,7 @@ version: "3.9"
 services:
   fastapi:
     build: ./fastapi
+    platform: linux/amd64
     container_name: fastapi
 
   nginx:

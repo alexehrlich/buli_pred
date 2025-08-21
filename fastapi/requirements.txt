@@ -6,4 +6,5 @@ matplotlib
 bs4
 xgboost
 fastapi[standard]
-selenium
+playwright
+lxml

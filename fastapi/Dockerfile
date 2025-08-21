@@ -1,12 +1,16 @@
-
-FROM selenium/base
+FROM node:20-bookworm
+RUN npx -y playwright@1.55.0 install --with-deps
 
 USER root
 
-RUN apt-get update && apt-get install -y python3 python3-pip
+RUN apt-get update && apt-get install -y python3-pip make python3.11-venv
 COPY . /app
 
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+RUN pip install --upgrade pip
 RUN pip install -r /app/requirements.txt
+
 
 WORKDIR /app/src/app
 
