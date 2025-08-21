@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  fastapi:
+    build: ./fastapi
+    container_name: fastapi
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - fastapi
+
+networks:
+  default:
+    name: app_network

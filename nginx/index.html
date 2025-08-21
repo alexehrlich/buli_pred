@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Bundesliga Predictions</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+    }
+    .matches {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .card {
+      display: flex;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 80%;
+      transition: transform 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+    }
+    .predictions-container {
+      width: 40%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-right: 20px;
+    }
+    .elo-plot {
+      width: 60%;
+      height: 100%;
+    }
+    .date {
+      font-size: 0.9em;
+      color: #777;
+      margin-bottom: 10px;
+      text-align: right;
+    }
+    .teams {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      font-size: 1.1em;
+      margin-bottom: 15px;
+    }
+    .predictions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .predictions div {
+      padding: 8px;
+      border-radius: 8px;
+      background: #f9f9f9;
+      font-size: 0.95em;
+    }
+    .predictions div span {
+      font-weight: bold;
+      color: #333;
+    }
+    .highlight {
+      background: #e0f7e9 !important;
+      color: #2e7d32;
+    }
+    .section-title {
+      font-weight: bold;
+      margin-top: 12px;
+      margin-bottom: 5px;
+      color: #444;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bundesliga Match Predictions</h1>
+  <div id="matches" class="matches"></div>
+
+  <script>
+    async function fetchData() {
+      try {
+        const response = await fetch('/predict');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+        renderMatches(data);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        document.getElementById("matches").innerHTML = "<p style='color:red;'>Failed to load match predictions.</p>";
+      }
+    }
+
+    function renderMatches(data) {
+      const container = document.getElementById("matches");
+      container.innerHTML = "";
+
+      Object.values(data).forEach((match, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const simpleVals = {
+          "🏠 Home Win": parseFloat(match.simple_model_results.home_team_win),
+          "➖ Draw/Loss": parseFloat(match.simple_model_results.home_team_draw_or_loss)
+        };
+        const simpleMax = Math.max(...Object.values(simpleVals));
+
+        const complexVals = {
+          "🏠 Home Win": parseFloat(match.complex_model_results.home_team_win),
+          "➖ Draw": parseFloat(match.complex_model_results.draw),
+          "🛫 Away Win": parseFloat(match.complex_model_results.away_team_win)
+        };
+        const complexMax = Math.max(...Object.values(complexVals));
+
+        const predictionsContainer = `
+          <div class="predictions-container">
+            <div class="date">${match.date}</div>
+            <div class="teams">
+              <div>${match.team_home}</div>
+              <div>vs</div>
+              <div>${match.team_away}</div>
+            </div>
+
+            <div class="section-title">Simple Model</div>
+            <div class="predictions">
+              ${Object.entries(simpleVals).map(([k,v]) =>
+                `<div class="${v===simpleMax ? 'highlight':''}">${k}: <span>${v.toFixed(2)}%</span></div>`
+              ).join("")}
+            </div>
+
+            <div class="section-title">Complex Model</div>
+            <div class="predictions">
+              ${Object.entries(complexVals).map(([k,v]) =>
+                `<div class="${v===complexMax ? 'highlight':''}">${k}: <span>${v.toFixed(2)}%</span></div>`
+              ).join("")}
+            </div>
+          </div>
+        `;
+
+        const plotContainer = `<div class="elo-plot" id="elo-${index}"></div>`;
+        card.innerHTML = predictionsContainer + plotContainer;
+        container.appendChild(card);
+
+        // Elo plot
+        if(match.elos){
+          const years = [];
+          for(let y=match.elos.start_date; y<=match.elos.end_date; y++){
+            years.push(y.toString());
+          }
+
+          const traceHome = {
+            x: years,
+            y: match.elos.team_home,
+            mode: 'lines+markers',
+            name: match.team_home,
+            line: {color: 'blue'}
+          };
+          const traceAway = {
+            x: years,
+            y: match.elos.team_away,
+            mode: 'lines+markers',
+            name: match.team_away,
+            line: {color: 'red'}
+          };
+          const layout = {
+            margin: { t: 20, r: 20, l: 40, b: 30 },
+            height: card.clientHeight,
+            yaxis: {autorange: true},
+            showlegend: true,
+            legend: { orientation: "h", x:0.3, y:1.2 }
+          };
+          Plotly.newPlot(`elo-${index}`, [traceHome, traceAway], layout, {displayModeBar:false});
+        }
+      });
+    }
+
+    fetchData();
+  </script>
+</body>
+</html>
