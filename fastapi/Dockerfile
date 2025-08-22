@@ -8,8 +8,8 @@ COPY . /app
 
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-RUN pip install --upgrade pip
-RUN pip install -r /app/requirements.txt
+RUN pip3 install --upgrade pip
+RUN pip3 install --no-cache-dir -vvv -r /app/requirements.txt
 
 RUN playwright install
 

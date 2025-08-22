@@ -155,37 +155,45 @@
 
         // Elo plot
         if(match.elos){
-          const years = [];
-          for(let y=match.elos.start_date; y<=match.elos.end_date; y++){
-            years.push(y.toString());
-          }
+          const indices = Array.from({length: match.elos.team_home.length}, (_, i) => i);
 
           const traceHome = {
-            x: years,
+            x: indices,
             y: match.elos.team_home,
-            mode: 'lines+markers',
+            mode: 'lines',
             name: match.team_home,
             line: {color: 'blue'}
           };
           const traceAway = {
-            x: years,
+            x: indices,
             y: match.elos.team_away,
-            mode: 'lines+markers',
+            mode: 'lines',
             name: match.team_away,
             line: {color: 'red'}
           };
+
           const layout = {
+              title: {
+                text: "Elo Ratings",
+                font: { size: 12 },
+                x: 0.5, // center the title
+                xanchor: 'center'
+            },
             margin: { t: 20, r: 20, l: 40, b: 30 },
             height: card.clientHeight,
             yaxis: {autorange: true},
+            xaxis: {
+              tickvals: [0, indices.length - 1],
+              ticktext: [match.elos.start_date, match.elos.end_date]
+            },
             showlegend: true,
-            legend: { orientation: "h", x:0.3, y:1.2 }
+            legend: { orientation: "v", x: 1, y: 1, xanchor: "right", yanchor: "top" }
           };
+
           Plotly.newPlot(`elo-${index}`, [traceHome, traceAway], layout, {displayModeBar:false});
         }
       });
     }
-
     fetchData();
   </script>
 </body>

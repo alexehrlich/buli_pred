@@ -3,6 +3,7 @@ import pickle
 import json
 import matplotlib.pyplot as plt
 from .plot_elos import get_elos
+import os
 
 
 def make_prediction():
@@ -10,17 +11,20 @@ def make_prediction():
 
     #only load all not played matches to make prediction
     open_matches_df = df[df['result_home'].isna()]
-
     with open('../training/features_simple_model.json', 'r') as f:
         features_simple = json.load(f)
 
     with open('../training/features_complex_model.json', 'r') as f:
         features_complex = json.load(f)
 
-    with open('../../models/model_win_loose.pkl', 'rb') as f:
+    simple_model_name = 'simple_model_retrained.pkl' if os.path.exists("../../models/simple_model_retrained.pkl") else 'model_win_loose.pkl'
+    with open(f"../../models/{simple_model_name}", 'rb') as f:
+        print(f"Chose simple model: {simple_model_name}")
         simple_model = pickle.load(f)
 
-    with open('../../models/model_win_draw_loose.pkl', 'rb') as f:
+    complex_model_name = 'complex_model_retrained.pkl' if os.path.exists("../../models/complex_model_retrained.pkl") else 'model_win_draw_loose.pkl'
+    with open(f"../../models/{complex_model_name}", 'rb') as f:
+        print(f"Chose complex model: {complex_model_name}")
         complex_model = pickle.load(f)
 
     matches = {}
