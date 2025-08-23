@@ -38,5 +38,5 @@ The almost impossible clear class separation can be seen in this pairplot. its a
 A running docker deamon is neccessary
 
 - `git clone ...`
-- `docker-compose up`
+- `docker-compose up --build`
 - go to the endpoints on localhost described above
