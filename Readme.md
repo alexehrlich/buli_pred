@@ -7,7 +7,7 @@ This small application fetches soccer data from different places to train a aimp
 ### Frontend
 Simple index.html located in a distinct nginx docker container shows the unplayed matches with an elo plot of both teams
 
-![image]([https://github.com/alexehrlich/buli_pred/imag/screen.png](https://github.com/alexehrlich/buli_pred/blob/main/img/screen.png)
+![https://github.com/alexehrlich/buli_pred/imag/screen.png](https://github.com/alexehrlich/buli_pred/blob/main/img/screen.png)
 
 #### Endpoints:
 - localhost:8080/ Show the predictions for all unplayed matches
