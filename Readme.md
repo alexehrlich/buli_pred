@@ -24,7 +24,7 @@ Soccer is a random game. Trainign a XGBoost to classify Win, Draw, Loss reaches 
 A simpler model just trained on the target if the home team wins or not (away team wins OR draw) reaches an accuracy of ~69%, which is ok. Both predictions are shown on the website
 
 #### Data
-Data is fetched form fbreb.com and clubelo.com
+Data is fetched form fbreb.com and clubelo.com and only used for educational purposes of this project.
 
 #### Feature Engineering
 With the fetched data a lot of features were calculated to find some, which seperate the target classes. Here it turned out, that soccer is a really random game which also relies strongly on ad hoc scenarios like missing players, changer of manacher etc. which is hart to get from olad data amd integrate into training.
