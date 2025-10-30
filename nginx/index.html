@@ -96,6 +96,16 @@
         const response = await fetch('/predict');
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
+        // Check if the response is empty ({} or [])
+        if (
+          !data ||
+          (Array.isArray(data) && data.length === 0) ||
+          (Object.keys(data).length === 0)
+        ) {
+          document.getElementById("matches").innerHTML =
+            "<p style='color:black;'>No open matches available. Try to call <code>localhost:8080/update</code> and then reload this page.</p>";
+          return;
+        }
         renderMatches(data);
       } catch (err) {
         console.error('Error fetching data:', err);

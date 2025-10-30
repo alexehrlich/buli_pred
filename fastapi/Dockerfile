@@ -17,4 +17,4 @@ RUN playwright install
 WORKDIR /app/src/app
 
 
-CMD ["fastapi", "run", "main.py", "--port", "8000"]
+CMD ["python", "-u", "-m", "fastapi", "run", "main.py", "--port", "8000"]
