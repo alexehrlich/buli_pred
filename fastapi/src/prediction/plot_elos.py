@@ -3,10 +3,16 @@ import pandas as pd
 import sys
 import json
 
-def get_elos(teams, start=1990, end=2025):
-    team_elo = {}
-    dates = pd.date_range(start=f"{start}-01-01", end=f"{end}-12-31", freq='MS')
+def get_elos(teams, end, start="2020-01-01"):
+    """
+        Loads the elo-values for the teams. Since they dont have the same date stamps, they must
+        be summarized(groupby) on a monthly basis for comparison and plotting.
+    """
+    dates = pd.date_range(start=start, end=end, freq='MS')
     date_list = [d.strftime(format='%Y-%m') for d in dates]
+
+    return_df = pd.DataFrame(index=date_list)
+
     with open('../../data/raw/elo_api_name_to_team_map.json') as f:
         elo_team_mapping = json.load(f)
         team_elo_mapping = {value: key for key, value in elo_team_mapping.items()}
@@ -19,15 +25,11 @@ def get_elos(teams, start=1990, end=2025):
         elo_df['From'] = pd.to_datetime(elo_df['From'])
         elos_mean = elo_df.groupby(elo_df['From'].dt.to_period('M'))[['Elo']].mean()
         elo_dates = [str(p) for p in elos_mean.index]
-        elos = pd.DataFrame([
-            elos_mean.loc[pd.Period(date, freq='M'), 'Elo'] if date in elo_dates else float('nan')
-            for date in date_list
-        ])
-        elos = elos.sort_index()
-        elos = elos.ffill().bfill().to_numpy()
-        team_elo[team] = elos.flatten()
-        print(team_elo[team].shape)
-    return team_elo
+        elo_values = [elos_mean.loc[pd.Period(date, freq='M'), 'Elo'] if date in elo_dates else float('nan') for date in date_list]
+        return_df.insert(0, team, elo_values)
+        return_df[team] = return_df[team].ffill().bfill()
+        return_df = return_df.sort_index(ascending=True)
+    return return_df.to_dict()
 
 def plot_elo(teams, start=1990, end=2025):
     dates = pd.date_range(start=f"{start}-01-01", end=f"{end}-12-31", freq='MS')
@@ -67,7 +69,7 @@ def main():
     
     team_list = sys.argv[1:]
 
-    plot_elo(team_list, start=2020)
+    get_elos(team_list, end="2025-09-06")
 
 if __name__ == '__main__':
     main()

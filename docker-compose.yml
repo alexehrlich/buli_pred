@@ -1,19 +1,29 @@
-version: "3.9"
-
 services:
   fastapi:
     build: ./fastapi
     platform: linux/amd64
     container_name: fastapi
+    networks:
+      - predictor_net
 
+  streamlit:
+    build: ./streamlit
+    container_name: streamlit
+    networks:
+      - predictor_net
+
+    
   nginx:
     build: ./nginx
     container_name: nginx
     ports:
-      - "8080:80"
+      - "8080:80" #map nginx:80 to the localhost:8080 (only gateway to outside)
     depends_on:
       - fastapi
+      - streamlit
+    networks:
+      - predictor_net
 
 networks:
-  default:
-    name: app_network
+  predictor_net:
+    driver: bridge

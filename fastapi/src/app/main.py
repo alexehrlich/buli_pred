@@ -6,8 +6,9 @@ from data.feature_eng import engineer_features
 from training.train import train
 from fastapi import BackgroundTasks
 import asyncio
+import json
 
-app = FastAPI(title='Test')
+app = FastAPI(title='Bundesliga Match Predictor')
 
 
 @app.get("/")
@@ -15,8 +16,8 @@ async def root():
     return {"message": "Hello World"}
 
 @app.get("/predict")
-async def predict():
-    results = make_prediction()
+async def predict(date):
+    results = make_prediction(date)
     return results
 
 # Wrapper to run sync functions in a separate thread
