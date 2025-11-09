@@ -77,7 +77,7 @@ def calculate_rest_days(df) -> pd.DataFrame:
 
 def calculate_date_details(df) -> pd.DataFrame:
     df['date'] = pd.to_datetime(df['date'])
-    df['match_hour'] = df['time'].replace(":.+", "", regex=True).astype('int')
+    df['match_hour'] = df['time'].str.split(' ').str[0].str.split(':').str[0].fillna(-1).astype(int)
     df['day_code'] = df['date'].dt.day_of_week
     df['week'] = df.apply(lambda x: x['round'].split(' ')[-1], axis=1)
     return df

@@ -31,28 +31,31 @@ class Scraper:
                     print(f"could not find {team}")
 
     def scrape_match_data(self, years, from_date=None, to_date=pd.to_datetime('today').normalize(), save_to_filepath=None):
+        
+        if len(years) == 0:
+                return
+
         all_matches = []
 
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)  # headless browser
+            browser = p.chromium.launch(headless=True)
             context = browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
                 viewport={'width': 1920, 'height': 1080},
             )
             page = context.new_page()
-
+            
+    
             latest_year = years[0]
             standings_url = f"https://fbref.com/en/comps/20/{latest_year - 1}-{latest_year}/{latest_year - 1}-{latest_year}-Bundesliga-Stats"
 
             for year in years:
                 print(f"Year: {year}")
                 page.goto(standings_url)
-                time.sleep(3)  # let page fully render
+                time.sleep(3)
 
                 html = page.content()
-                with open('out.html', 'w') as f:
-                    f.write(html)
-
+                
                 soup = BeautifulSoup(html, 'html.parser')
                 standings_table = soup.select('table.stats_table')[0]
 
@@ -98,7 +101,7 @@ class Scraper:
                     team_data["Team"] = team_name
 
                     if from_date is not None:
-                        team_data = team_data[team_data["Date"].between(from_date, to_date, inclusive='right')]
+                        team_data = team_data[team_data["Date"].gt(from_date)]
 
                     team_data = team_data.drop(team_data[team_data["Date"] == "Date"].index)
                     all_matches.append(team_data)
