@@ -1,6 +1,6 @@
 FROM node:20-bookworm
 
-RUN npx -y playwright@1.55.0 install --with-deps
+RUN npx -y playwright@1.56.0 install --with-deps
 
 USER root
 
