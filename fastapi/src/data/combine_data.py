@@ -137,6 +137,5 @@ def combine_matches():
 def main():
     combine_matches()
 
-
 if __name__ == '__main__':
     main()

@@ -13,11 +13,14 @@ class Scraper:
         pass
 
     def download_team_elos(self):
+        """
+            Downloads the elo data for each team from clubelo.com and writes the records
+            to each teams own csv file. Since fbref (match data) and clubelo.com have different
+            team names, a mapping is neccessary.
+        """
         with open('../../data/raw/elo_api_name_to_team_map.json', 'r') as f:
             elo_teamname_mapping = json.load(f)
-
             if not os.path.exists('../../data/raw/team_elos/'):
-                print(f"create folder ../../data/raw/team_elos/")
                 os.makedirs('../../data/raw/team_elos/')
 
             for team in list(elo_teamname_mapping.keys()):
@@ -30,7 +33,7 @@ class Scraper:
                 else:
                     print(f"could not find {team}")
 
-    def scrape_match_data(self, years, from_date=None, to_date=pd.to_datetime('today').normalize(), save_to_filepath=None):
+    def scrape_match_data(self, years, from_date=None, save_to_filepath=None):
         
         if len(years) == 0:
                 return
@@ -45,7 +48,6 @@ class Scraper:
             )
             page = context.new_page()
             
-    
             latest_year = years[0]
             standings_url = f"https://fbref.com/en/comps/20/{latest_year - 1}-{latest_year}/{latest_year - 1}-{latest_year}-Bundesliga-Stats"
 
@@ -106,7 +108,6 @@ class Scraper:
                     team_data = team_data.drop(team_data[team_data["Date"] == "Date"].index)
                     all_matches.append(team_data)
                     time.sleep(1)
-
             browser.close()
 
         if save_to_filepath:
@@ -121,5 +122,4 @@ class Scraper:
                 match_df['date'] = pd.to_datetime(match_df['date'])
                 match_df.sort_values('date').to_csv(save_to_filepath, index=False)
             return match_df
-
         return pd.concat(all_matches)
